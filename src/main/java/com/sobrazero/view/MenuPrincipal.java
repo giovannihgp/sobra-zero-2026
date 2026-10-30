@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class MenuPrincipal {
 
     private final Scanner entrada = new Scanner(System.in);
+    private final MenuLogin menuLogin = new MenuLogin(entrada);
 
     public static void main(String[] args) {
         new MenuPrincipal().exibir();
@@ -22,7 +23,7 @@ public class MenuPrincipal {
 
             String opcao = entrada.nextLine().trim();
             switch (opcao) {
-                case "1" -> System.out.println("Login ainda não implementado.");
+                case "1" -> menuLogin.exibir();
                 case "2" -> System.out.println("Cadastro ainda não implementado.");
                 case "0" -> executando = false;
                 default -> System.out.println("Opção inválida. Digite 1, 2 ou 0.");
