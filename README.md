@@ -80,11 +80,17 @@ Para carregar dados de exemplo (usuários e doações de teste), rode também:
 psql -U postgres -d sobrazero -f database/seed.sql
 ```
 
-> No Windows, se os comandos `createdb` e `psql` não forem reconhecidos, use o **pgAdmin**: crie um banco chamado `sobrazero`, abra a Query Tool e execute o conteúdo dos arquivos `.sql` da pasta `database/`.
+> No Windows, se os comandos `createdb` e `psql` não forem reconhecidos, adicione `C:\Program Files\PostgreSQL\16\bin` à variável de ambiente `Path` e abra um terminal novo. Outra opção é usar o **pgAdmin**: crie um banco chamado `sobrazero`, abra a Query Tool e execute o conteúdo dos arquivos `.sql` da pasta `database/`.
 
 ### 3. Configurar a conexão
 
-Abra o arquivo `src/main/resources/config.properties` e ajuste o usuário e a senha do seu PostgreSQL:
+O arquivo com as credenciais não vem no repositório. Crie-o a partir do exemplo (o comando funciona no Git Bash e no PowerShell):
+
+```bash
+cp src/main/resources/config.properties.example src/main/resources/config.properties
+```
+
+Depois abra `src/main/resources/config.properties` e troque `SUA_SENHA_AQUI` pela senha do usuário `postgres` definida na instalação do PostgreSQL:
 
 ```properties
 db.url=jdbc:postgresql://localhost:5432/sobrazero
@@ -92,12 +98,16 @@ db.user=postgres
 db.password=SUA_SENHA_AQUI
 ```
 
+> O `config.properties` está no `.gitignore`, então a sua senha nunca sobe para o GitHub.
+
 ### 4. Compilar e rodar
 
 ```bash
 mvn clean package
 java -jar target/sobra-zero-1.0.jar
 ```
+
+Para conferir só a conexão com o banco, rode `java -cp target/sobra-zero-1.0.jar com.sobrazero.util.ConexaoBD`. A saída esperada é `conectado: 16.x`.
 
 A aplicação abre um menu no terminal. Use as credenciais de teste abaixo para navegar pelos três perfis.
 
