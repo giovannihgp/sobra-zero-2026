@@ -1,5 +1,6 @@
 package com.sobrazero.view;
 
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class MenuPrincipal {
@@ -9,7 +10,13 @@ public class MenuPrincipal {
     private final MenuCadastro menuCadastro = new MenuCadastro(entrada);
 
     public static void main(String[] args) {
-        new MenuPrincipal().exibir();
+        try {
+            new MenuPrincipal().exibir();
+        } catch (NoSuchElementException e) {
+            // o Scanner lanca esta excecao quando a entrada termina (ex.: Ctrl+Z)
+            System.out.println();
+            System.out.println("Entrada encerrada. Até logo!");
+        }
     }
 
     public void exibir() {
