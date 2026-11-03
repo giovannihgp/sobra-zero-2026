@@ -16,7 +16,7 @@ public class MenuLogin {
         System.out.println("=== ENTRAR ===");
         System.out.print("E-mail: ");
         String email = entrada.nextLine().trim();
-        String senha = lerSenha("Senha: ");
+        String senha = lerSenha(entrada, "Senha: ");
 
         if (email.isEmpty() || senha.isEmpty()) {
             System.out.println("Informe e-mail e senha.");
@@ -25,7 +25,7 @@ public class MenuLogin {
         System.out.println("Autenticação ainda não implementada.");
     }
 
-    private String lerSenha(String rotulo) {
+    static String lerSenha(Scanner entrada, String rotulo) {
         Console console = System.console();
         // null quando o programa nao roda num terminal interativo (ex.: botao Run da IDE)
         if (console == null) {
