@@ -26,7 +26,7 @@ public class MenuCadastro {
         String email = lerObrigatorio("E-mail: ");
         String senha = lerSenhaConfirmada();
         String cnpj = lerObrigatorio("CNPJ: ");
-        String endereco = lerObrigatorio("Endereço: ");
+        String endereco = perfil.equals("1") ? lerObrigatorio("Endereço: ") : null;
         Double capacidadeKg = perfil.equals("2") ? lerCapacidadeKg() : null;
 
         System.out.println("Gravação do cadastro ainda não implementada.");
