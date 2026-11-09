@@ -9,8 +9,4 @@ public class AutenticacaoService {
     private String gerarHash(String senha) {
         return BCrypt.hashpw(senha, BCrypt.gensalt(CUSTO_HASH));
     }
-
-    private boolean senhaConfere(String senha, String hash) {
-        return BCrypt.checkpw(senha, hash);
-    }
 }
