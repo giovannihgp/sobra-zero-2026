@@ -20,6 +20,22 @@ final class EntradaConsole {
         }
     }
 
+    static String lerOpcional(Scanner entrada, String rotulo) {
+        System.out.print(rotulo);
+        return entrada.nextLine().trim();
+    }
+
+    static int lerInteiro(Scanner entrada, String rotulo) {
+        while (true) {
+            String valor = lerObrigatorio(entrada, rotulo);
+            try {
+                return Integer.parseInt(valor);
+            } catch (NumberFormatException e) {
+                System.out.println("Digite um número inteiro.");
+            }
+        }
+    }
+
     static String lerSenha(Scanner entrada, String rotulo) {
         Console console = System.console();
         // null quando o programa nao roda num terminal interativo (ex.: botao Run da IDE)
