@@ -26,14 +26,14 @@ public class MenuCadastro {
             return;
         }
 
-        String nome = lerObrigatorio("Nome: ");
-        String email = lerObrigatorio("E-mail: ");
-        String senha = lerSenhaConfirmada();
-        String cnpj = lerObrigatorio("CNPJ: ");
+        String nome = EntradaConsole.lerObrigatorio(entrada, "Nome: ");
+        String email = EntradaConsole.lerObrigatorio(entrada, "E-mail: ");
+        String senha = EntradaConsole.lerSenhaConfirmada(entrada);
+        String cnpj = EntradaConsole.lerObrigatorio(entrada, "CNPJ: ");
 
         try {
             if (perfil.equals("1")) {
-                String endereco = lerObrigatorio("Endereço: ");
+                String endereco = EntradaConsole.lerObrigatorio(entrada, "Endereço: ");
                 servico.cadastrarEstabelecimento(nome, email, senha, cnpj, endereco);
             } else {
                 double capacidadeKg = lerCapacidadeKg();
@@ -45,34 +45,9 @@ public class MenuCadastro {
         }
     }
 
-    private String lerObrigatorio(String rotulo) {
-        while (true) {
-            System.out.print(rotulo);
-            String valor = entrada.nextLine().trim();
-            if (!valor.isEmpty()) {
-                return valor;
-            }
-            System.out.println("Este campo é obrigatório.");
-        }
-    }
-
-    private String lerSenhaConfirmada() {
-        while (true) {
-            String senha = MenuLogin.lerSenha(entrada, "Senha: ");
-            String confirmacao = MenuLogin.lerSenha(entrada, "Confirme a senha: ");
-            if (senha.isEmpty()) {
-                System.out.println("A senha é obrigatória.");
-            } else if (!senha.equals(confirmacao)) {
-                System.out.println("As senhas não conferem. Tente de novo.");
-            } else {
-                return senha;
-            }
-        }
-    }
-
     private double lerCapacidadeKg() {
         while (true) {
-            String valor = lerObrigatorio("Capacidade de recebimento (kg): ").replace(',', '.');
+            String valor = EntradaConsole.lerObrigatorio(entrada, "Capacidade de recebimento (kg): ").replace(',', '.');
             try {
                 double capacidade = Double.parseDouble(valor);
                 if (Double.isFinite(capacidade) && capacidade > 0) {
