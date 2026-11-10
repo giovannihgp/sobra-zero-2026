@@ -50,7 +50,7 @@ Cada integrante só edita os próprios arquivos. Antes de alterar um arquivo de 
 
 | Integrante | Branch | Arquivos |
 |---|---|---|
-| Giovanni | `feature/controle-acesso` | `pom.xml`, `util/ConexaoBD.java`, `dao/UsuarioDAO.java`, `service/AutenticacaoService.java`, `service/RegraNegocioException.java`, `service/RelatorioService.java`, `view/MenuPrincipal.java`, `view/MenuLogin.java`, `view/MenuCadastro.java`, `view/MenuAdministrador.java`, `view/EntradaConsole.java` |
+| Giovanni | `feature/controle-acesso` | `pom.xml`, `util/ConexaoBD.java`, `dao/UsuarioDAO.java`, `dao/RelatorioDAO.java`, `service/AutenticacaoService.java`, `service/RegraNegocioException.java`, `service/RelatorioService.java`, `view/MenuPrincipal.java`, `view/MenuLogin.java`, `view/MenuCadastro.java`, `view/MenuAdministrador.java`, `view/EntradaConsole.java` |
 | Gustavo | `feature/doacoes` | todo o `model/` (Bloco 0), `dao/DoacaoDAO.java`, `dao/ItemDoacaoDAO.java`, `service/DoacaoService.java`, `view/MenuEstabelecimento.java` |
 | Gabriel | `feature/coletas` | `database/schema.sql`, `database/seed.sql`, corpo dos métodos de `model/DoacaoPerecivel.java` e `model/DoacaoNaoPerecivel.java`, `dao/ColetaDAO.java`, `service/PriorizacaoService.java`, `service/ColetaService.java`, `view/MenuInstituicao.java` |
 
