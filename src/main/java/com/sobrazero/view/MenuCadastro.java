@@ -1,10 +1,14 @@
 package com.sobrazero.view;
 
+import com.sobrazero.service.AutenticacaoService;
+import com.sobrazero.service.RegraNegocioException;
+
 import java.util.Scanner;
 
 public class MenuCadastro {
 
     private final Scanner entrada;
+    private final AutenticacaoService servico = new AutenticacaoService();
 
     public MenuCadastro(Scanner entrada) {
         this.entrada = entrada;
@@ -26,10 +30,19 @@ public class MenuCadastro {
         String email = lerObrigatorio("E-mail: ");
         String senha = lerSenhaConfirmada();
         String cnpj = lerObrigatorio("CNPJ: ");
-        String endereco = perfil.equals("1") ? lerObrigatorio("Endereço: ") : null;
-        Double capacidadeKg = perfil.equals("2") ? lerCapacidadeKg() : null;
 
-        System.out.println("Gravação do cadastro ainda não implementada.");
+        try {
+            if (perfil.equals("1")) {
+                String endereco = lerObrigatorio("Endereço: ");
+                servico.cadastrarEstabelecimento(nome, email, senha, cnpj, endereco);
+            } else {
+                double capacidadeKg = lerCapacidadeKg();
+                servico.cadastrarInstituicao(nome, email, senha, cnpj, capacidadeKg);
+            }
+            System.out.println("Cadastro realizado! Agora é só entrar com seu e-mail e senha.");
+        } catch (RegraNegocioException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private String lerObrigatorio(String rotulo) {
