@@ -51,6 +51,29 @@ public class UsuarioDAO {
         return atualizarUsuario(administrador, administrador.getMatricula(), null, null);
     }
 
+    // Atualiza so as colunas comuns a todos os perfis, por isso aceita qualquer Usuario
+    public boolean atualizarDadosBasicos(Usuario usuario) throws SQLException {
+        try (Connection conexao = ConexaoBD.getConexao();
+             PreparedStatement comando = conexao.prepareStatement(
+                     "UPDATE usuarios SET nome = ?, email = ? WHERE id = ?")) {
+            comando.setString(1, usuario.getNome());
+            comando.setString(2, usuario.getEmail());
+            comando.setInt(3, usuario.getId());
+            return comando.executeUpdate() > 0;
+        }
+    }
+
+    // Devolve null quando nao existe usuario com esse id
+    public Usuario buscarPorId(int id) throws SQLException {
+        try (Connection conexao = ConexaoBD.getConexao();
+             PreparedStatement comando = conexao.prepareStatement(SQL_SELECIONAR + " WHERE id = ?")) {
+            comando.setInt(1, id);
+            try (ResultSet resultado = comando.executeQuery()) {
+                return resultado.next() ? montarUsuario(resultado) : null;
+            }
+        }
+    }
+
     // Devolve null quando nao existe usuario com esse e-mail
     public Usuario buscarPorEmail(String email) throws SQLException {
         try (Connection conexao = ConexaoBD.getConexao();
