@@ -1,16 +1,22 @@
 package com.sobrazero.view;
 
+import com.sobrazero.model.Relatorio;
 import com.sobrazero.model.Usuario;
 import com.sobrazero.service.AutenticacaoService;
 import com.sobrazero.service.RegraNegocioException;
+import com.sobrazero.service.RelatorioService;
 
+import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class MenuAdministrador {
 
     private final Scanner entrada;
     private final AutenticacaoService servico = new AutenticacaoService();
+    private final RelatorioService relatorioServico = new RelatorioService();
 
     public MenuAdministrador(Scanner entrada) {
         this.entrada = entrada;
@@ -25,6 +31,7 @@ public class MenuAdministrador {
             System.out.println("2 - Cadastrar administrador");
             System.out.println("3 - Editar usuário");
             System.out.println("4 - Excluir usuário");
+            System.out.println("5 - Relatório por período");
             System.out.println("0 - Sair da conta");
             System.out.print("Escolha uma opção: ");
 
@@ -34,8 +41,9 @@ public class MenuAdministrador {
                 case "2" -> cadastrarAdministrador();
                 case "3" -> editarUsuario();
                 case "4" -> excluirUsuario(usuarioLogado);
+                case "5" -> gerarRelatorio();
                 case "0" -> executando = false;
-                default -> System.out.println("Opção inválida. Digite um número de 0 a 4.");
+                default -> System.out.println("Opção inválida. Digite um número de 0 a 5.");
             }
         }
     }
@@ -100,5 +108,45 @@ public class MenuAdministrador {
         } catch (RegraNegocioException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private void gerarRelatorio() {
+        System.out.println();
+        System.out.println("=== RELATÓRIO POR PERÍODO ===");
+        LocalDate inicio = EntradaConsole.lerData(entrada, "Data inicial (dd/mm/aaaa): ");
+        LocalDate fim = EntradaConsole.lerData(entrada, "Data final (dd/mm/aaaa): ");
+        try {
+            Relatorio relatorio = relatorioServico.gerar(inicio, fim);
+            exibirRelatorio(relatorio);
+            String resposta = EntradaConsole.lerOpcional(entrada, "Exportar para CSV? (s/N): ");
+            if (resposta.equalsIgnoreCase("s")) {
+                Path arquivo = relatorioServico.exportarCsv(relatorio);
+                System.out.println("Arquivo salvo em: " + arquivo);
+            }
+        } catch (RegraNegocioException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void exibirRelatorio(Relatorio relatorio) {
+        System.out.println();
+        System.out.printf("Total resgatado: %.2f kg%n", relatorio.getPesoTotalKg());
+        System.out.println();
+        System.out.println("Doações cadastradas no período, por status:");
+        relatorio.getQuantidadePorStatus().forEach((status, quantidade) ->
+                System.out.printf("  %-12s %d%n", status, quantidade));
+        System.out.println();
+        System.out.println("Kg resgatados por estabelecimento:");
+        imprimirPesos(relatorio.getPesoPorEstabelecimento());
+        System.out.println("Kg resgatados por instituição:");
+        imprimirPesos(relatorio.getPesoPorInstituicao());
+    }
+
+    private void imprimirPesos(Map<String, Double> pesos) {
+        if (pesos.isEmpty()) {
+            System.out.println("  (nenhuma retirada no período)");
+            return;
+        }
+        pesos.forEach((nome, kg) -> System.out.printf("  %-30s %10.2f kg%n", nome, kg));
     }
 }

@@ -1,12 +1,31 @@
 package com.sobrazero.view;
 
 import java.io.Console;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Scanner;
 
 // Leituras de teclado repetidas em varios menus. Todas recebem o mesmo Scanner do MenuPrincipal.
 final class EntradaConsole {
 
+    // STRICT recusa datas que nao existem, como 31/02
+    private static final DateTimeFormatter FORMATO_DATA =
+            DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
+
     private EntradaConsole() {
+    }
+
+    static LocalDate lerData(Scanner entrada, String rotulo) {
+        while (true) {
+            String valor = lerObrigatorio(entrada, rotulo);
+            try {
+                return LocalDate.parse(valor, FORMATO_DATA);
+            } catch (DateTimeParseException e) {
+                System.out.println("Data inválida. Use o formato dd/mm/aaaa, como 05/11/2026.");
+            }
+        }
     }
 
     static String lerObrigatorio(Scanner entrada, String rotulo) {
