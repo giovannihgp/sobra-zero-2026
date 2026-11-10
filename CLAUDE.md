@@ -50,7 +50,7 @@ Cada integrante só edita os próprios arquivos. Antes de alterar um arquivo de 
 
 | Integrante | Branch | Arquivos |
 |---|---|---|
-| Giovanni | `feature/controle-acesso` | `pom.xml`, `util/ConexaoBD.java`, `dao/UsuarioDAO.java`, `service/AutenticacaoService.java`, `service/RelatorioService.java`, `view/MenuPrincipal.java`, `view/MenuLogin.java`, `view/MenuCadastro.java`, `view/MenuAdministrador.java` |
+| Giovanni | `feature/controle-acesso` | `pom.xml`, `util/ConexaoBD.java`, `dao/UsuarioDAO.java`, `service/AutenticacaoService.java`, `service/RegraNegocioException.java`, `service/RelatorioService.java`, `view/MenuPrincipal.java`, `view/MenuLogin.java`, `view/MenuCadastro.java`, `view/MenuAdministrador.java` |
 | Gustavo | `feature/doacoes` | todo o `model/` (Bloco 0), `dao/DoacaoDAO.java`, `dao/ItemDoacaoDAO.java`, `service/DoacaoService.java`, `view/MenuEstabelecimento.java` |
 | Gabriel | `feature/coletas` | `database/schema.sql`, `database/seed.sql`, corpo dos métodos de `model/DoacaoPerecivel.java` e `model/DoacaoNaoPerecivel.java`, `dao/ColetaDAO.java`, `service/PriorizacaoService.java`, `service/ColetaService.java`, `view/MenuInstituicao.java` |
 
@@ -84,6 +84,7 @@ O projeto é avaliado sobre estes pontos. Toda alteração precisa preservá-los
 - Senhas sempre em hash. Nunca gravar senha em texto puro, nem imprimir no console.
 - O único lugar onde é aceitável decidir por tipo é o `switch` sobre `tipo_usuario` / `tipo_doacao` dentro do DAO, para instanciar a subclasse certa ao ler do banco.
 - Inserção de doação e itens acontece na mesma transação: `setAutoCommit(false)`, `commit()` no fim, `rollback()` no `catch`. O id gerado vem de `getGeneratedKeys()`.
+- Serviços avisam a `view` sobre erros lançando `RegraNegocioException` com a mensagem já pronta para o usuário; a `view` faz `catch` e imprime `getMessage()`. `SQLException` não passa do service.
 - Nenhum stack trace chega ao console: a `view` mostra mensagem amigável. Violação do `UNIQUE` em `coletas` vira "doação já reservada".
 - Credenciais do banco ficam em `src/main/resources/config.properties`, que **não** vai para o repositório (adicionar ao `.gitignore`; versionar apenas `config.properties.example`).
 
