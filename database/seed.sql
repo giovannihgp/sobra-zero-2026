@@ -1,21 +1,27 @@
 BEGIN;
 
-INSERT INTO usuarios (nome, email, senha_hash, tipo_usuario, documento) VALUES
+INSERT INTO usuarios (nome, email, senha_hash, tipo_usuario, documento, endereco, capacidade_kg) VALUES
     ('Administrador do Sistema',
      'admin@sobrazero.com',
      '$2a$10$4mKAofICE3W/M9Taj8lBoORc4x3668RbZPtX9IwsnF2pUZxZVzJHq',
      'ADMINISTRADOR',
+     'ADM-0001',
+     NULL,
      NULL),
     ('Mercado Bom Preco',
      'mercado@teste.com',
      '$2a$10$I9nrX7dR3RjEsetnqQan5uPmw0a2EEhcPG7UbbXtGgFVJ43DDBEfq',
      'ESTABELECIMENTO',
-     '11.111.111/0001-11'),
+     '11.111.111/0001-11',
+     'Rua das Flores, 120 - Centro',
+     NULL),
     ('Instituicao Mesa Solidaria',
      'instituicao@teste.com',
      '$2a$10$YflJsWJMHowFYGqx6i7theo.bas529lKTHAxhIL6iL9YpZyZk4Qam',
      'INSTITUICAO',
-     '22.222.222/0001-22');
+     '22.222.222/0001-22',
+     NULL,
+     500.00);
 
 WITH d AS (
     INSERT INTO doacoes (estabelecimento_id, tipo_doacao, data_cadastro, data_validade, exige_refrigeracao, status)
@@ -47,9 +53,9 @@ CROSS JOIN (VALUES
 ) AS i (descricao, quantidade, unidade_medida);
 
 WITH d AS (
-    INSERT INTO doacoes (estabelecimento_id, tipo_doacao, data_cadastro, data_validade, exige_refrigeracao, status)
+    INSERT INTO doacoes (estabelecimento_id, tipo_doacao, data_cadastro, data_validade, exige_refrigeracao, status, lote, meses_estocagem)
     VALUES ((SELECT id FROM usuarios WHERE email = 'mercado@teste.com'),
-            'NAO_PERECIVEL', CURRENT_DATE, NULL, FALSE, 'DISPONIVEL')
+            'NAO_PERECIVEL', CURRENT_DATE, NULL, FALSE, 'DISPONIVEL', 'L2026-001', 12)
     RETURNING id
 )
 INSERT INTO itens_doacao (doacao_id, descricao, quantidade, unidade_medida)
@@ -99,9 +105,9 @@ SELECT d.id,
 FROM d;
 
 WITH d AS (
-    INSERT INTO doacoes (estabelecimento_id, tipo_doacao, data_cadastro, data_validade, exige_refrigeracao, status)
+    INSERT INTO doacoes (estabelecimento_id, tipo_doacao, data_cadastro, data_validade, exige_refrigeracao, status, lote, meses_estocagem)
     VALUES ((SELECT id FROM usuarios WHERE email = 'mercado@teste.com'),
-            'NAO_PERECIVEL', CURRENT_DATE - 5, NULL, FALSE, 'CONCLUIDA')
+            'NAO_PERECIVEL', CURRENT_DATE - 5, NULL, FALSE, 'CONCLUIDA', 'L2026-002', 18)
     RETURNING id
 ),
 i AS (

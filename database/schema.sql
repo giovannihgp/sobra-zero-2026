@@ -1,5 +1,4 @@
--- Sobra Zero - schema do banco de dados
--- Reflete o DER (Figura 2) do documento em docs/AEP1_SobraZero.pdf
+
 
 CREATE TABLE usuarios (
     id            SERIAL PRIMARY KEY,
@@ -8,7 +7,9 @@ CREATE TABLE usuarios (
     senha_hash    VARCHAR(255) NOT NULL,
     tipo_usuario  VARCHAR(20) NOT NULL
         CHECK (tipo_usuario IN ('ESTABELECIMENTO', 'INSTITUICAO', 'ADMINISTRADOR')),
-    documento     VARCHAR(18)
+    documento     VARCHAR(18),
+    endereco      VARCHAR(150) NULL,
+    capacidade_kg NUMERIC(10,2) NULL
 );
 
 CREATE TABLE doacoes (
@@ -20,10 +21,12 @@ CREATE TABLE doacoes (
     data_validade       DATE NULL,
     exige_refrigeracao  BOOLEAN NOT NULL DEFAULT FALSE,
     status              VARCHAR(20) NOT NULL DEFAULT 'DISPONIVEL'
-        CHECK (status IN ('DISPONIVEL', 'AGENDADA', 'CONCLUIDA', 'EXPIRADA'))
+        CHECK (status IN ('DISPONIVEL', 'AGENDADA', 'CONCLUIDA', 'EXPIRADA')),
+    lote                VARCHAR(30) NULL,
+    meses_estocagem     INTEGER NULL
 );
 
--- ON DELETE CASCADE traduz no banco a composicao forte Doacao -> ItemDoacao do diagrama de classes
+
 CREATE TABLE itens_doacao (
     id              SERIAL PRIMARY KEY,
     doacao_id       INTEGER NOT NULL REFERENCES doacoes(id) ON DELETE CASCADE,
@@ -32,7 +35,7 @@ CREATE TABLE itens_doacao (
     unidade_medida  VARCHAR(10) NOT NULL
 );
 
--- UNIQUE em doacao_id garante no banco que uma doacao nunca seja reservada duas vezes (RF04)
+
 CREATE TABLE coletas (
     id               SERIAL PRIMARY KEY,
     doacao_id        INTEGER NOT NULL UNIQUE REFERENCES doacoes(id),
