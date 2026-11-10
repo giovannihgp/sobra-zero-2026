@@ -107,8 +107,6 @@ mvn clean package
 java -jar target/sobra-zero-1.0.jar
 ```
 
-Para conferir só a conexão com o banco, rode `java -cp target/sobra-zero-1.0.jar com.sobrazero.util.ConexaoBD`. A saída esperada é `conectado: 16.x`.
-
 A aplicação abre um menu no terminal. Use as credenciais de teste abaixo para navegar pelos três perfis.
 
 ---
