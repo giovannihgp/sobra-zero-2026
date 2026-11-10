@@ -8,6 +8,7 @@ import com.sobrazero.model.Usuario;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class AutenticacaoService {
 
@@ -18,6 +19,7 @@ public class AutenticacaoService {
     // Codigos de erro (SQLState) do PostgreSQL
     private static final String VIOLACAO_UNICIDADE = "23505";
     private static final String VALOR_MUITO_LONGO = "22001";
+    private static final String VIOLACAO_CHAVE_ESTRANGEIRA = "23503";
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
@@ -74,12 +76,68 @@ public class AutenticacaoService {
         return administrador;
     }
 
-    private void validarCredenciais(String email, String senha) throws RegraNegocioException {
-        if (!normalizarEmail(email).matches(EMAIL_VALIDO)) {
-            throw new RegraNegocioException("E-mail inválido.");
+    public List<Usuario> listarUsuarios() throws RegraNegocioException {
+        try {
+            return usuarioDAO.listarTodos();
+        } catch (SQLException e) {
+            throw erroDeBanco(e);
         }
+    }
+
+    public Usuario buscarUsuario(int id) throws RegraNegocioException {
+        Usuario usuario;
+        try {
+            usuario = usuarioDAO.buscarPorId(id);
+        } catch (SQLException e) {
+            throw erroDeBanco(e);
+        }
+        if (usuario == null) {
+            throw new RegraNegocioException("Usuário não encontrado.");
+        }
+        return usuario;
+    }
+
+    public void atualizarDadosBasicos(Usuario usuario, String novoNome, String novoEmail)
+            throws RegraNegocioException {
+        validarEmail(novoEmail);
+        usuario.setNome(novoNome);
+        usuario.setEmail(normalizarEmail(novoEmail));
+        try {
+            usuarioDAO.atualizarDadosBasicos(usuario);
+        } catch (SQLException e) {
+            throw traduzirErroDeCadastro(e);
+        }
+    }
+
+    public void excluirUsuario(int id, Usuario solicitante) throws RegraNegocioException {
+        if (id == solicitante.getId()) {
+            throw new RegraNegocioException("Você não pode excluir a própria conta.");
+        }
+        boolean excluiu;
+        try {
+            excluiu = usuarioDAO.excluir(id);
+        } catch (SQLException e) {
+            if (VIOLACAO_CHAVE_ESTRANGEIRA.equals(e.getSQLState())) {
+                throw new RegraNegocioException(
+                        "Este usuário tem doações ou coletas registradas e não pode ser excluído.", e);
+            }
+            throw erroDeBanco(e);
+        }
+        if (!excluiu) {
+            throw new RegraNegocioException("Usuário não encontrado.");
+        }
+    }
+
+    private void validarCredenciais(String email, String senha) throws RegraNegocioException {
+        validarEmail(email);
         if (senha.length() < TAMANHO_MINIMO_SENHA) {
             throw new RegraNegocioException("A senha precisa ter pelo menos " + TAMANHO_MINIMO_SENHA + " caracteres.");
+        }
+    }
+
+    private void validarEmail(String email) throws RegraNegocioException {
+        if (!normalizarEmail(email).matches(EMAIL_VALIDO)) {
+            throw new RegraNegocioException("E-mail inválido.");
         }
     }
 
