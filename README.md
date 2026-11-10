@@ -148,6 +148,19 @@ Cada integrante desenvolve em uma branch própria, nomeada por funcionalidade (`
 
 ---
 
+## Ajustes em relação ao documento da Entrega 1
+
+Durante a implementação, alguns pontos foram ajustados em relação ao documento entregue no 1º bimestre:
+
+- **Colunas novas no banco:** `usuarios` ganhou `endereco` e `capacidade_kg`, e `doacoes` ganhou `lote` e `meses_estocagem`. Esses atributos já estavam no diagrama de classes, mas faltavam no DER, e sem as colunas não haveria onde gravá-los.
+- **Documento do usuário:** a coluna `documento` guarda o CNPJ (estabelecimento e instituição) ou a matrícula (administrador). No Java, cada subclasse tem o seu atributo próprio (`cnpj` ou `matricula`).
+- **Doação ligada ao estabelecimento:** `Doacao` passou a guardar o `Estabelecimento` que a publicou, espelhando a chave estrangeira `estabelecimento_id`, para que o painel da instituição mostre a origem de cada doação.
+- **Peso resgatado:** só entram no cálculo os itens medidos em `kg` ou `g`. Itens em unidade (`un`) ou caixa (`cx`) não têm conversão para quilo.
+- **Cadastro de administradores:** o cadastro aberto oferece só os perfis Estabelecimento e Instituição. Novos administradores são cadastrados por um administrador já autenticado.
+- **Edição de usuários:** o administrador edita nome e e-mail, os campos comuns aos três perfis.
+
+---
+
 ## Documentação
 
 O documento completo de arquitetura e requisitos, com os diagramas de classes (UML) e do banco de dados (DER), está em [`docs/`](docs/).
