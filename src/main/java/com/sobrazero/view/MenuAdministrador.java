@@ -1,5 +1,7 @@
 package com.sobrazero.view;
 
+import com.sobrazero.model.Usuario;
+
 import java.util.Scanner;
 
 public class MenuAdministrador {
@@ -10,7 +12,7 @@ public class MenuAdministrador {
         this.entrada = entrada;
     }
 
-    public void exibir() {
+    public void exibir(Usuario usuarioLogado) {
         boolean executando = true;
         while (executando) {
             System.out.println();
@@ -19,7 +21,7 @@ public class MenuAdministrador {
             System.out.println("2 - Cadastrar administrador");
             System.out.println("3 - Editar usuário");
             System.out.println("4 - Excluir usuário");
-            System.out.println("0 - Voltar");
+            System.out.println("0 - Sair da conta");
             System.out.print("Escolha uma opção: ");
 
             String opcao = entrada.nextLine().trim();
