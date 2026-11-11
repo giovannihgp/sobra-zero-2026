@@ -24,16 +24,22 @@ public class DoacaoNaoPerecivel extends Doacao {
         this.mesesEstocagem = mesesEstocagem;
     }
 
-    // Stub do Bloco 0: prioridade baixa e constante, definida pelo Gabriel
     @Override
     public int calcularPrioridade() {
-        return 0;
+        final int PRIORIDADE_BAIXA = 10;
+        return PRIORIDADE_BAIXA;
     }
 
-    // Stub do Bloco 0: implementado pelo Gabriel
     @Override
     public String descreverManuseio() {
-        return "";
+        String descricao = "Nao perecivel: guardar em local seco e arejado";
+        if (lote != null && !lote.isBlank()) {
+            descricao += ", lote " + lote;
+        }
+        if (mesesEstocagem > 0) {
+            descricao += ", estocagem de ate " + mesesEstocagem + " meses";
+        }
+        return descricao + ".";
     }
 
     public String getLote() {
