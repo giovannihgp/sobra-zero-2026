@@ -100,4 +100,12 @@ public class ColetaService {
         coleta.setStatusColeta(statusAnterior);
         coleta.setDataRetirada(retiradaAnterior);
     }
+
+    public int expirarVencidas() throws ColetaException {
+        try (Connection conexao = ConexaoBD.getConexao()) {
+            return coletaDAO.expirarVencidas(conexao);
+        } catch (SQLException e) {
+            throw new ColetaException("Nao foi possivel atualizar as doacoes vencidas.");
+        }
+    }
 }
