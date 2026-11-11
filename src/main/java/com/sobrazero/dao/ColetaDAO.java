@@ -5,6 +5,7 @@ import com.sobrazero.model.Doacao;
 import com.sobrazero.model.DoacaoNaoPerecivel;
 import com.sobrazero.model.DoacaoPerecivel;
 import com.sobrazero.model.Estabelecimento;
+import com.sobrazero.model.Instituicao;
 import com.sobrazero.model.ItemDoacao;
 import com.sobrazero.model.StatusDoacao;
 
@@ -50,6 +51,28 @@ public class ColetaDAO {
             "SELECT i.id, i.doacao_id, i.descricao, i.quantidade, i.unidade_medida "
             + "FROM itens_doacao i JOIN doacoes d ON d.id = i.doacao_id "
             + "WHERE d.status = ? ORDER BY i.doacao_id, i.id";
+
+    private static final String SQL_LISTAR_AGENDADAS =
+            "SELECT c.id AS coleta_id, c.data_agendada, c.data_retirada, c.status_coleta, "
+            + "d.id, d.tipo_doacao, d.data_cadastro, d.data_validade, d.exige_refrigeracao, "
+            + "d.lote, d.meses_estocagem, d.status AS doacao_status, "
+            + "e.id AS estabelecimento_id, e.nome, e.email, e.documento, e.endereco, "
+            + "i.id AS instituicao_id, i.nome AS instituicao_nome, i.email AS instituicao_email, "
+            + "i.documento AS instituicao_documento, i.capacidade_kg "
+            + "FROM coletas c "
+            + "JOIN doacoes d ON d.id = c.doacao_id "
+            + "JOIN usuarios e ON e.id = d.estabelecimento_id "
+            + "JOIN usuarios i ON i.id = c.instituicao_id "
+            + "WHERE d.estabelecimento_id = ? AND c.status_coleta = ? "
+            + "ORDER BY c.data_agendada, c.id";
+
+    private static final String SQL_ITENS_AGENDADAS =
+            "SELECT i.id, i.doacao_id, i.descricao, i.quantidade, i.unidade_medida "
+            + "FROM itens_doacao i "
+            + "JOIN doacoes d ON d.id = i.doacao_id "
+            + "JOIN coletas c ON c.doacao_id = d.id "
+            + "WHERE d.estabelecimento_id = ? AND c.status_coleta = ? "
+            + "ORDER BY i.doacao_id, i.id";
 
     private static final String SQL_CONCLUIR_DOACAO =
             "UPDATE doacoes SET status = ? WHERE id = ? AND status = ?";
@@ -115,7 +138,7 @@ public class ColetaDAO {
             ps.setString(1, StatusDoacao.DISPONIVEL.name());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Doacao doacao = montarDoacao(rs);
+                    Doacao doacao = montarDoacao(rs, StatusDoacao.DISPONIVEL);
                     if (doacao != null) {
                         doacoes.put(doacao.getId(), doacao);
                     }
@@ -126,23 +149,14 @@ public class ColetaDAO {
         try (PreparedStatement ps = conexao.prepareStatement(SQL_ITENS_DISPONIVEIS)) {
             ps.setString(1, StatusDoacao.DISPONIVEL.name());
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Doacao doacao = doacoes.get(rs.getInt("doacao_id"));
-                    if (doacao != null) {
-                        doacao.adicionarItem(new ItemDoacao(
-                                rs.getInt("id"),
-                                rs.getString("descricao"),
-                                rs.getDouble("quantidade"),
-                                rs.getString("unidade_medida")));
-                    }
-                }
+                adicionarItens(rs, doacoes);
             }
         }
 
         return new ArrayList<>(doacoes.values());
     }
 
-    private Doacao montarDoacao(ResultSet rs) throws SQLException {
+    private Doacao montarDoacao(ResultSet rs, StatusDoacao status) throws SQLException {
         int id = rs.getInt("id");
         LocalDate dataCadastro = rs.getDate("data_cadastro").toLocalDate();
         Date validade = rs.getDate("data_validade");
@@ -153,11 +167,11 @@ public class ColetaDAO {
                 if (validade == null) {
                     return null;
                 }
-                doacao = new DoacaoPerecivel(id, dataCadastro, StatusDoacao.DISPONIVEL,
+                doacao = new DoacaoPerecivel(id, dataCadastro, status,
                         validade.toLocalDate(), rs.getBoolean("exige_refrigeracao"));
                 break;
             case "NAO_PERECIVEL":
-                doacao = new DoacaoNaoPerecivel(id, dataCadastro, StatusDoacao.DISPONIVEL,
+                doacao = new DoacaoNaoPerecivel(id, dataCadastro, status,
                         rs.getString("lote"), rs.getInt("meses_estocagem"));
                 break;
             default:
@@ -172,5 +186,68 @@ public class ColetaDAO {
                 rs.getString("documento"),
                 rs.getString("endereco")));
         return doacao;
+    }
+
+    public List<Coleta> listarAgendadas(Connection conexao, int estabelecimentoId) throws SQLException {
+        Map<Integer, Doacao> doacoes = new LinkedHashMap<>();
+        List<Coleta> coletas = new ArrayList<>();
+
+        try (PreparedStatement ps = conexao.prepareStatement(SQL_LISTAR_AGENDADAS)) {
+            ps.setInt(1, estabelecimentoId);
+            ps.setString(2, Coleta.STATUS_AGENDADA);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    StatusDoacao statusDoacao = StatusDoacao.valueOf(rs.getString("doacao_status"));
+                    Doacao doacao = montarDoacao(rs, statusDoacao);
+                    if (doacao == null) {
+                        continue;
+                    }
+                    doacoes.put(doacao.getId(), doacao);
+
+                    Instituicao instituicao = new Instituicao(
+                            rs.getInt("instituicao_id"),
+                            rs.getString("instituicao_nome"),
+                            rs.getString("instituicao_email"),
+                            null,
+                            rs.getString("instituicao_documento"),
+                            rs.getDouble("capacidade_kg"));
+
+                    Coleta coleta = new Coleta();
+                    coleta.setId(rs.getInt("coleta_id"));
+                    coleta.setDoacao(doacao);
+                    coleta.setInstituicao(instituicao);
+                    coleta.setDataAgendada(rs.getDate("data_agendada").toLocalDate());
+                    Timestamp retirada = rs.getTimestamp("data_retirada");
+                    if (retirada != null) {
+                        coleta.setDataRetirada(retirada.toLocalDateTime());
+                    }
+                    coleta.setStatusColeta(rs.getString("status_coleta"));
+                    coletas.add(coleta);
+                }
+            }
+        }
+
+        try (PreparedStatement ps = conexao.prepareStatement(SQL_ITENS_AGENDADAS)) {
+            ps.setInt(1, estabelecimentoId);
+            ps.setString(2, Coleta.STATUS_AGENDADA);
+            try (ResultSet rs = ps.executeQuery()) {
+                adicionarItens(rs, doacoes);
+            }
+        }
+
+        return coletas;
+    }
+
+    private void adicionarItens(ResultSet rs, Map<Integer, Doacao> doacoes) throws SQLException {
+        while (rs.next()) {
+            Doacao doacao = doacoes.get(rs.getInt("doacao_id"));
+            if (doacao != null) {
+                doacao.adicionarItem(new ItemDoacao(
+                        rs.getInt("id"),
+                        rs.getString("descricao"),
+                        rs.getDouble("quantidade"),
+                        rs.getString("unidade_medida")));
+            }
+        }
     }
 }
