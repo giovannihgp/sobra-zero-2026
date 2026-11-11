@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ColetaService {
 
@@ -106,6 +107,14 @@ public class ColetaService {
             return coletaDAO.expirarVencidas(conexao);
         } catch (SQLException e) {
             throw new ColetaException("Nao foi possivel atualizar as doacoes vencidas.");
+        }
+    }
+
+    public List<Doacao> listarDisponiveis() throws ColetaException {
+        try (Connection conexao = ConexaoBD.getConexao()) {
+            return coletaDAO.listarDisponiveis(conexao);
+        } catch (SQLException e) {
+            throw new ColetaException("Nao foi possivel carregar as doacoes disponiveis.");
         }
     }
 }
