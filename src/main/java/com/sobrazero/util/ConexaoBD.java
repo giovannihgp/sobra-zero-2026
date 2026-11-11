@@ -38,13 +38,4 @@ public final class ConexaoBD {
     public static Connection getConexao() throws SQLException {
         return DriverManager.getConnection(URL, USUARIO, SENHA);
     }
-
-    // Teste provisorio do Bloco 0: remover quando o MenuPrincipal existir
-    public static void main(String[] args) {
-        try (Connection conexao = getConexao()) {
-            System.out.println("conectado: " + conexao.getMetaData().getDatabaseProductVersion());
-        } catch (SQLException e) {
-            System.out.println("falha ao conectar: " + e.getMessage());
-        }
-    }
 }
