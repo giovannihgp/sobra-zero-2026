@@ -25,6 +25,10 @@ public class ColetaDAO {
             + "WHERE id = ? AND status_coleta = ? "
             + "AND doacao_id IN (SELECT id FROM doacoes WHERE estabelecimento_id = ?)";
 
+    private static final String SQL_EXPIRAR_VENCIDAS =
+            "UPDATE doacoes SET status = ? "
+            + "WHERE tipo_doacao = ? AND status = ? AND data_validade < CURRENT_DATE";
+
     private static final String SQL_CONCLUIR_DOACAO =
             "UPDATE doacoes SET status = ? WHERE id = ? AND status = ?";
 
@@ -70,6 +74,15 @@ public class ColetaDAO {
             ps.setInt(2, doacaoId);
             ps.setString(3, StatusDoacao.AGENDADA.name());
             return ps.executeUpdate() == 1;
+        }
+    }
+
+    public int expirarVencidas(Connection conexao) throws SQLException {
+        try (PreparedStatement ps = conexao.prepareStatement(SQL_EXPIRAR_VENCIDAS)) {
+            ps.setString(1, StatusDoacao.EXPIRADA.name());
+            ps.setString(2, "PERECIVEL");
+            ps.setString(3, StatusDoacao.DISPONIVEL.name());
+            return ps.executeUpdate();
         }
     }
 }
