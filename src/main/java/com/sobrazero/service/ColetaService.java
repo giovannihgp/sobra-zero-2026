@@ -117,4 +117,12 @@ public class ColetaService {
             throw new ColetaException("Nao foi possivel carregar as doacoes disponiveis.");
         }
     }
+
+    public List<Coleta> listarAgendadas(int estabelecimentoId) throws ColetaException {
+        try (Connection conexao = ConexaoBD.getConexao()) {
+            return coletaDAO.listarAgendadas(conexao, estabelecimentoId);
+        } catch (SQLException e) {
+            throw new ColetaException("Nao foi possivel carregar as coletas agendadas.");
+        }
+    }
 }
