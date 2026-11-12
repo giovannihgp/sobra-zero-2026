@@ -164,3 +164,5 @@ Durante a implementação, alguns pontos foram ajustados em relação ao documen
 ## Documentação
 
 O documento completo de arquitetura e requisitos, com os diagramas de classes (UML) e do banco de dados (DER), está em [`docs/`](docs/).
+
+Os diagramas atualizados, que refletem o código e o banco como estão hoje, ficam em [`docs/diagramas.md`](docs/diagramas.md).

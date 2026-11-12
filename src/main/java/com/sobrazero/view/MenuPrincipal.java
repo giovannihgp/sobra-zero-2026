@@ -1,5 +1,6 @@
 package com.sobrazero.view;
 
+import com.sobrazero.model.Instituicao;
 import com.sobrazero.model.Usuario;
 
 import java.util.Map;
@@ -18,7 +19,8 @@ public class MenuPrincipal {
     private final Map<String, Consumer<Usuario>> menusPorPerfil = Map.of(
             "ADMINISTRADOR", menuAdministrador::exibir,
             "ESTABELECIMENTO", usuario -> System.out.println("O menu do estabelecimento ainda está em desenvolvimento."),
-            "INSTITUICAO", usuario -> System.out.println("O menu da instituição ainda está em desenvolvimento."));
+            // O cast e seguro: este menu so e chamado quando obterPerfil() devolve INSTITUICAO
+            "INSTITUICAO", usuario -> new MenuInstituicao((Instituicao) usuario, entrada).exibir());
 
     public static void main(String[] args) {
         try {

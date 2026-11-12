@@ -1,6 +1,9 @@
 package com.sobrazero.model;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class DoacaoPerecivel extends Doacao {
 
@@ -22,16 +25,34 @@ public class DoacaoPerecivel extends Doacao {
         this.exigeRefrigeracao = exigeRefrigeracao;
     }
 
-    // Stub do Bloco 0: a logica (horas ate o vencimento) e do Gabriel
     @Override
     public int calcularPrioridade() {
-        return 0;
+        final int PRIORIDADE_VENCIDA = 1000;
+        final int PRIORIDADE_BASE = 100;
+        final int JANELA_HORAS = 720;
+        final int BONUS_REFRIGERACAO = 50;
+
+        LocalDateTime fimDoDia = dataValidade.plusDays(1).atStartOfDay();
+        long horasRestantes = Duration.between(LocalDateTime.now(), fimDoDia).toHours();
+
+        if (horasRestantes <= 0) {
+            return PRIORIDADE_VENCIDA;
+        }
+
+        int prioridade = PRIORIDADE_BASE + (JANELA_HORAS - (int) Math.min(horasRestantes, JANELA_HORAS));
+        if (exigeRefrigeracao) {
+            prioridade += BONUS_REFRIGERACAO;
+        }
+        return prioridade;
     }
 
-    // Stub do Bloco 0: implementado pelo Gabriel
     @Override
     public String descreverManuseio() {
-        return "";
+        String limite = dataValidade.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        if (exigeRefrigeracao) {
+            return "Perecivel: manter refrigerado ate a retirada e retirar antes de " + limite + ".";
+        }
+        return "Perecivel: manter em local fresco e retirar antes de " + limite + ".";
     }
 
     public LocalDate getDataValidade() {
