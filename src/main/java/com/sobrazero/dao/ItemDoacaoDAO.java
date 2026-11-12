@@ -19,6 +19,8 @@ public class ItemDoacaoDAO {
     private static final String SQL_LISTAR_POR_DOACAO =
             "SELECT id, descricao, quantidade, unidade_medida FROM itens_doacao WHERE doacao_id = ? ORDER BY id";
 
+    private static final String SQL_EXCLUIR_POR_DOACAO = "DELETE FROM itens_doacao WHERE doacao_id = ?";
+
     // Nao faz commit nem fecha a conexao: isso e responsabilidade do DoacaoDAO
     public void inserirItens(Connection conexao, int doacaoId, List<ItemDoacao> itens) throws SQLException {
         try (PreparedStatement comando = conexao.prepareStatement(SQL_INSERIR, new String[] {"id"})) {
@@ -35,6 +37,14 @@ public class ItemDoacaoDAO {
                     }
                 }
             }
+        }
+    }
+
+    // Usado na edicao: os itens antigos saem e os novos entram na mesma transacao
+    public void excluirPorDoacao(Connection conexao, int doacaoId) throws SQLException {
+        try (PreparedStatement comando = conexao.prepareStatement(SQL_EXCLUIR_POR_DOACAO)) {
+            comando.setInt(1, doacaoId);
+            comando.executeUpdate();
         }
     }
 

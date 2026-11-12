@@ -27,6 +27,19 @@ public class DoacaoDAO {
             "SELECT id, tipo_doacao, data_cadastro, data_validade, exige_refrigeracao, status, lote, meses_estocagem "
             + "FROM doacoes WHERE estabelecimento_id = ? ORDER BY data_cadastro DESC, id DESC";
 
+    private static final String SQL_BUSCAR_POR_ID =
+            "SELECT id, tipo_doacao, data_cadastro, data_validade, exige_refrigeracao, status, lote, meses_estocagem "
+            + "FROM doacoes WHERE id = ? AND estabelecimento_id = ?";
+
+    // status = ? no WHERE: se a doacao foi reservada no meio do caminho, nada e alterado
+    private static final String SQL_ATUALIZAR =
+            "UPDATE doacoes SET data_validade = ?, exige_refrigeracao = ?, lote = ?, meses_estocagem = ? "
+            + "WHERE id = ? AND estabelecimento_id = ? AND status = ?";
+
+    // Os itens saem junto por causa do ON DELETE CASCADE do schema
+    private static final String SQL_EXCLUIR =
+            "DELETE FROM doacoes WHERE id = ? AND estabelecimento_id = ? AND status = ?";
+
     private final ItemDoacaoDAO itemDoacaoDAO = new ItemDoacaoDAO();
 
     // Uma sobrecarga por subclasse, como no UsuarioDAO: assim o DAO nao precisa de instanceof
@@ -55,6 +68,80 @@ public class DoacaoDAO {
             }
         }
         return doacoes;
+    }
+
+    // Devolve null se nao existir ou se for de outro estabelecimento
+    public Doacao buscarPorId(int doacaoId, Estabelecimento estabelecimento) throws SQLException {
+        try (Connection conexao = ConexaoBD.getConexao();
+             PreparedStatement comando = conexao.prepareStatement(SQL_BUSCAR_POR_ID)) {
+            comando.setInt(1, doacaoId);
+            comando.setInt(2, estabelecimento.getId());
+            try (ResultSet resultado = comando.executeQuery()) {
+                if (!resultado.next()) {
+                    return null;
+                }
+                Doacao doacao = montarDoacao(resultado);
+                doacao.setEstabelecimento(estabelecimento);
+                doacao.setItens(itemDoacaoDAO.listarPorDoacao(conexao, doacaoId));
+                return doacao;
+            }
+        }
+    }
+
+    // Devolve false se nao atualizou nenhuma linha (doacao nao esta mais DISPONIVEL)
+    public boolean atualizar(DoacaoPerecivel doacao) throws SQLException {
+        return atualizarDoacao(doacao, doacao.getDataValidade(), doacao.isExigeRefrigeracao(), null, null);
+    }
+
+    public boolean atualizar(DoacaoNaoPerecivel doacao) throws SQLException {
+        return atualizarDoacao(doacao, null, false, doacao.getLote(), doacao.getMesesEstocagem());
+    }
+
+    // Devolve false se nao excluiu nenhuma linha (nao existe, nao e dele ou nao esta DISPONIVEL)
+    public boolean excluir(int doacaoId, Estabelecimento estabelecimento) throws SQLException {
+        try (Connection conexao = ConexaoBD.getConexao();
+             PreparedStatement comando = conexao.prepareStatement(SQL_EXCLUIR)) {
+            comando.setInt(1, doacaoId);
+            comando.setInt(2, estabelecimento.getId());
+            comando.setString(3, StatusDoacao.DISPONIVEL.name());
+            return comando.executeUpdate() > 0;
+        }
+    }
+
+    private boolean atualizarDoacao(Doacao doacao, LocalDate dataValidade, boolean exigeRefrigeracao,
+                                    String lote, Integer mesesEstocagem) throws SQLException {
+        try (Connection conexao = ConexaoBD.getConexao()) {
+            conexao.setAutoCommit(false);
+            try (PreparedStatement comando = conexao.prepareStatement(SQL_ATUALIZAR)) {
+                if (dataValidade == null) {
+                    comando.setNull(1, Types.DATE);
+                } else {
+                    comando.setDate(1, Date.valueOf(dataValidade));
+                }
+                comando.setBoolean(2, exigeRefrigeracao);
+                comando.setString(3, lote);
+                if (mesesEstocagem == null) {
+                    comando.setNull(4, Types.INTEGER);
+                } else {
+                    comando.setInt(4, mesesEstocagem);
+                }
+                comando.setInt(5, doacao.getId());
+                comando.setInt(6, doacao.getEstabelecimento().getId());
+                comando.setString(7, StatusDoacao.DISPONIVEL.name());
+
+                if (comando.executeUpdate() == 0) {
+                    conexao.rollback();
+                    return false;
+                }
+                itemDoacaoDAO.excluirPorDoacao(conexao, doacao.getId());
+                itemDoacaoDAO.inserirItens(conexao, doacao.getId(), doacao.getItens());
+                conexao.commit();
+                return true;
+            } catch (SQLException e) {
+                conexao.rollback();
+                throw e;
+            }
+        }
     }
 
     // Doacao e itens entram na mesma transacao: ou grava tudo, ou nao grava nada
