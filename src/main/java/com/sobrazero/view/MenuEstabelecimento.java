@@ -1,11 +1,13 @@
 package com.sobrazero.view;
 
+import com.sobrazero.model.Coleta;
 import com.sobrazero.model.Doacao;
 import com.sobrazero.model.DoacaoNaoPerecivel;
 import com.sobrazero.model.DoacaoPerecivel;
 import com.sobrazero.model.Estabelecimento;
 import com.sobrazero.model.ItemDoacao;
 import com.sobrazero.model.Usuario;
+import com.sobrazero.service.ColetaService;
 import com.sobrazero.service.DoacaoService;
 import com.sobrazero.service.RegraNegocioException;
 
@@ -17,9 +19,11 @@ import java.util.Scanner;
 public class MenuEstabelecimento {
 
     private static final DateTimeFormatter FORMATO_DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter FORMATO_DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final Scanner entrada;
     private final DoacaoService servico = new DoacaoService();
+    private final ColetaService coletaServico = new ColetaService();
 
     public MenuEstabelecimento(Scanner entrada) {
         this.entrada = entrada;
@@ -36,6 +40,7 @@ public class MenuEstabelecimento {
             System.out.println("2 - Listar minhas doações");
             System.out.println("3 - Editar doação");
             System.out.println("4 - Excluir doação");
+            System.out.println("5 - Confirmar retirada");
             System.out.println("0 - Sair da conta");
             System.out.print("Escolha uma opção: ");
 
@@ -45,9 +50,42 @@ public class MenuEstabelecimento {
                 case "2" -> listarDoacoes(estabelecimento);
                 case "3" -> editarDoacao(estabelecimento);
                 case "4" -> excluirDoacao(estabelecimento);
+                case "5" -> confirmarRetirada(estabelecimento);
                 case "0" -> executando = false;
-                default -> System.out.println("Opção inválida. Digite um número de 0 a 4.");
+                default -> System.out.println("Opção inválida. Digite um número de 0 a 5.");
             }
+        }
+    }
+
+    // RF05: lista as coletas agendadas deste estabelecimento e confirma a que foi retirada
+    private void confirmarRetirada(Estabelecimento estabelecimento) {
+        try {
+            List<Coleta> coletas = coletaServico.listarAgendadas(estabelecimento.getId());
+            if (coletas.isEmpty()) {
+                System.out.println("Nenhuma coleta agendada no momento.");
+                return;
+            }
+            System.out.println();
+            for (int i = 0; i < coletas.size(); i++) {
+                Coleta coleta = coletas.get(i);
+                System.out.printf("[%d] Doação #%d | %s | retirada agendada para %s | %.2f kg%n",
+                        i + 1, coleta.getDoacao().getId(), coleta.getInstituicao().getNome(),
+                        coleta.getDataAgendada().format(FORMATO_DATA), coleta.getDoacao().calcularPesoTotal());
+            }
+            int escolha = EntradaConsole.lerInteiro(entrada, "Número da coleta retirada (0 para cancelar): ");
+            if (escolha == 0) {
+                System.out.println("Confirmação cancelada.");
+                return;
+            }
+            if (escolha < 1 || escolha > coletas.size()) {
+                System.out.println("Número inválido.");
+                return;
+            }
+            Coleta escolhida = coletas.get(escolha - 1);
+            coletaServico.confirmarRetirada(escolhida, estabelecimento);
+            System.out.println("Retirada confirmada em " + escolhida.getDataRetirada().format(FORMATO_DATA_HORA) + ".");
+        } catch (RegraNegocioException e) {
+            System.out.println(e.getMessage());
         }
     }
 
