@@ -14,11 +14,12 @@ public class MenuPrincipal {
     private final MenuLogin menuLogin = new MenuLogin(entrada);
     private final MenuCadastro menuCadastro = new MenuCadastro(entrada);
     private final MenuAdministrador menuAdministrador = new MenuAdministrador(entrada);
+    private final MenuEstabelecimento menuEstabelecimento = new MenuEstabelecimento(entrada);
 
     // Liga o perfil devolvido por obterPerfil() ao menu daquele perfil, sem if/instanceof por tipo
     private final Map<String, Consumer<Usuario>> menusPorPerfil = Map.of(
             "ADMINISTRADOR", menuAdministrador::exibir,
-            "ESTABELECIMENTO", usuario -> System.out.println("O menu do estabelecimento ainda está em desenvolvimento."),
+            "ESTABELECIMENTO", menuEstabelecimento::exibir,
             // O cast e seguro: este menu so e chamado quando obterPerfil() devolve INSTITUICAO
             "INSTITUICAO", usuario -> new MenuInstituicao((Instituicao) usuario, entrada).exibir());
 
