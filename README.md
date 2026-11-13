@@ -125,19 +125,19 @@ Disponíveis após a execução do `seed.sql`:
 
 ## Funcionalidades (escopo do 2º bimestre)
 
-- [ ] **RF01** — Cadastro e autenticação de usuários nos perfis Estabelecimento, Instituição e Administrador
-- [ ] **RF02** — Registro de doações (perecíveis e não perecíveis) com seus respectivos itens
-- [ ] **RF03** — Cálculo automático da prioridade de coleta por proximidade da validade
-- [ ] **RF04** — Reserva de doação pela instituição, com bloqueio para as demais
-- [ ] **RF05** — Confirmação de retirada com registro de data e hora
-- [ ] **RF06** — Expiração automática de doações não retiradas até a validade
-- [ ] **RF07** — Relatórios consolidados por período com exportação em CSV
+- [x] **RF01** — Cadastro e autenticação de usuários nos perfis Estabelecimento, Instituição e Administrador
+- [x] **RF02** — Registro de doações (perecíveis e não perecíveis) com seus respectivos itens
+- [x] **RF03** — Cálculo automático da prioridade de coleta por proximidade da validade
+- [x] **RF04** — Reserva de doação pela instituição, com bloqueio para as demais
+- [x] **RF05** — Confirmação de retirada com registro de data e hora
+- [x] **RF06** — Expiração automática de doações não retiradas até a validade
+- [x] **RF07** — Relatórios consolidados por período com exportação em CSV
 
 ---
 
 ## Organização do trabalho
 
-Cada integrante desenvolve em uma branch própria, nomeada por funcionalidade (`feature/controle-acesso`, `feature/doacoes`, `feature/coletas`), e integra na `main` através de Pull Request revisado por outro membro da equipe.
+Cada integrante desenvolve em uma branch própria, nomeada por funcionalidade (`feature/controle-acesso`, `feature/doacao-crud`, `feature/coletas`), e integra na `main` através de Pull Request revisado por outro membro da equipe.
 
 | Sprint | Período | Entrega |
 |---|---|---|
