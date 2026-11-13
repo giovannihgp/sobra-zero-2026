@@ -51,8 +51,8 @@ Cada integrante só edita os próprios arquivos. Antes de alterar um arquivo de 
 | Integrante | Branch | Arquivos |
 |---|---|---|
 | Giovanni | `feature/controle-acesso` | `pom.xml`, `util/ConexaoBD.java`, `dao/UsuarioDAO.java`, `dao/RelatorioDAO.java`, `service/AutenticacaoService.java`, `service/RegraNegocioException.java`, `service/RelatorioService.java`, `view/MenuPrincipal.java`, `view/MenuLogin.java`, `view/MenuCadastro.java`, `view/MenuAdministrador.java`, `view/EntradaConsole.java` |
-| Gustavo | `feature/doacoes` | todo o `model/` (Bloco 0), `dao/DoacaoDAO.java`, `dao/ItemDoacaoDAO.java`, `service/DoacaoService.java`, `view/MenuEstabelecimento.java` |
-| Gabriel | `feature/coletas` | `database/schema.sql`, `database/seed.sql`, corpo dos métodos de `model/DoacaoPerecivel.java` e `model/DoacaoNaoPerecivel.java`, `dao/ColetaDAO.java`, `service/PriorizacaoService.java`, `service/ColetaService.java`, `view/MenuInstituicao.java` |
+| Gustavo | `feature/doacao-crud` | todo o `model/` (Bloco 0), `dao/DoacaoDAO.java`, `dao/ItemDoacaoDAO.java`, `service/DoacaoService.java`, `view/MenuEstabelecimento.java` |
+| Gabriel | `feature/coletas` | `database/schema.sql`, `database/seed.sql`, corpo dos métodos de `model/DoacaoPerecivel.java` e `model/DoacaoNaoPerecivel.java`, `dao/ColetaDAO.java`, `service/PriorizacaoService.java`, `service/ColetaService.java`, `service/ColetaException.java`, `view/MenuInstituicao.java` |
 
 - `model/` fica congelado depois do Bloco 0: qualquer mudança é avisada no grupo antes.
 - No Bloco 0, `calcularPrioridade()` e `descreverManuseio()` são stubs nas subclasses (`return 0;` / `return "";`). Quem implementa é o Gabriel.
@@ -123,7 +123,7 @@ Não implemente funcionalidades fora desta lista sem que eu peça. O critério d
 
 - Commits no padrão Conventional Commits: `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`, `test:`.
 - Mensagem em português, verbo no imperativo, sem acentos: `feat: implementa cadastro de doacao perecivel`.
-- Uma branch por funcionalidade: `feature/controle-acesso`, `feature/doacoes`, `feature/coletas`.
+- Uma branch por funcionalidade: `feature/controle-acesso`, `feature/doacao-crud`, `feature/coletas`.
 - Depois do Bloco 0, nada de commit direto na `main`: tudo entra por Pull Request revisado por outro integrante.
 - Sempre `git pull origin main` antes de começar a trabalhar.
 - Commits pequenos e frequentes. O histórico é avaliado como prova de participação individual — **nunca** faça commits em nome de outro integrante nem junte o trabalho de todos em um commit só.
